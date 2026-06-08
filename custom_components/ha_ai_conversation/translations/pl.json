@@ -4,7 +4,7 @@
       "single_instance_allowed": "Już skonfigurowane. Możliwa jest tylko jedna konfiguracja."
     },
     "error": {
-      "cannot_connect": "Nie udało się połączyć",
+      "cannot_connect": "Nie udało się połączyć: {message}",
       "invalid_auth": "Nieprawidłowa autoryzacja",
       "unknown": "Niespodziewany błąd"
     },

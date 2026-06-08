@@ -28,6 +28,16 @@ class APIError(Exception):
     """Base API error."""
 
 
+class ValidationError(ValueError):
+    """Validation error with a user-facing message."""
+
+    def __init__(self, error_key: str, detail: str | None = None) -> None:
+        """Initialize validation error."""
+        super().__init__(error_key)
+        self.error_key = error_key
+        self.detail = detail
+
+
 @dataclass(slots=True)
 class ChatMessage:
     """Internal normalized chat message."""
@@ -446,4 +456,8 @@ async def detect_and_validate_client(hass: HomeAssistant, data: dict[str, Any]) 
 
     if isinstance(last_error, ValueError):
         raise last_error
-    raise ValueError("cannot_connect") from last_error
+
+    detail = None
+    if last_error is not None:
+        detail = str(last_error).strip() or type(last_error).__name__
+    raise ValidationError("cannot_connect", detail) from last_error

@@ -4,7 +4,7 @@
       "single_instance_allowed": "Déjà configuré. Une seule configuration possible."
     },
     "error": {
-      "cannot_connect": "Échec de la connexion",
+      "cannot_connect": "Échec de la connexion : {message}",
       "invalid_auth": "Authentification invalide",
       "unknown": "Erreur inattendue"
     },
