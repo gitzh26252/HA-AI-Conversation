@@ -1,0 +1,52 @@
+{
+  "config": {
+    "abort": {
+      "single_instance_allowed": "已配置过设置，仅能配置一次"
+    },
+    "error": {
+      "cannot_connect": "連結失敗",
+      "invalid_auth": "無效的驗證",
+      "unknown": "非預期的錯誤",
+      "unsupported_api_mode": "不支援的 API 模式"
+    },
+    "step": {
+      "user": {
+        "description": "输入端点、API Key 和模型 ID。集成会自动尝试识别 API 协议。",
+        "data": {
+          "api_key": "API 金鑰",
+          "api_base": "API 端點",
+          "chat_model": "模型 ID",
+          "api_mode": "API 模式"
+        },
+        "data_description": {
+          "api_base": "示例: {example_url}",
+          "chat_model": "例如: gpt-4o-mini、claude-sonnet-4-6、gemini-2.5-flash",
+          "api_mode": "建议使用自动检测。仅在非标准端点时手动选择。"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "prompt": "指令",
+          "chat_model": "模型",
+          "max_tokens": "最大输出 tokens",
+          "temperature": "Temperature",
+          "top_p": "Top P",
+          "llm_hass_api": "是否使用 Home Assistant LLM API",
+          "recommended": "推荐模型设置"
+        },
+        "data_description": {
+          "prompt": "指定模型应如何响应。这里可以使用模板。"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_config_entry": {
+      "message": "提供了无效的配置项。收到 {config_entry}"
+    }
+  }
+}

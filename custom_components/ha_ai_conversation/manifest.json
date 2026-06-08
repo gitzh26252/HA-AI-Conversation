@@ -1,0 +1,23 @@
+{
+  "domain": "ha_ai_conversation",
+  "name": "HA AI Conversation",
+  "after_dependencies": [
+    "assist_pipeline",
+    "intent"
+  ],
+  "codeowners": [
+    "@gitzh26252"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "conversation"
+  ],
+  "documentation": "https://github.com/gitzh26252/HA-AI-Conversation",
+  "integration_type": "service",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/gitzh26252/HA-AI-Conversation/issues",
+  "requirements": [
+    "httpx>=0.27.0,<1.0.0"
+  ],
+  "version": "2026.02.0"
+}

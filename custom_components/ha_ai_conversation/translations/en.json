@@ -1,0 +1,53 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "Already configured. Only a single configuration possible."
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error",
+      "unsupported_api_mode": "Unsupported API mode"
+    },
+    "step": {
+      "user": {
+        "description": "Enter the endpoint, API key and model ID. The integration will try to detect the API protocol automatically.",
+        "data": {
+          "api_key": "API Key",
+          "api_base": "API Base URL",
+          "chat_model": "Model ID",
+          "api_mode": "API mode"
+        },
+        "data_description": {
+          "api_key": "",
+          "api_base": "Example: {example_url}",
+          "chat_model": "Examples: gpt-4o-mini, claude-sonnet-4-6, gemini-2.5-flash",
+          "api_mode": "Auto detect is recommended. Select manually only for non-standard endpoints."
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "prompt": "Instructions",
+          "chat_model": "Model",
+          "max_tokens": "Maximum tokens to return in response",
+          "temperature": "Temperature",
+          "top_p": "Top P",
+          "llm_hass_api": "Do you want to use the LLM HASS API?",
+          "recommended": "Recommended model settings"
+        },
+        "data_description": {
+          "prompt": "Instruct how the LLM should respond. This can be a template."
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "invalid_config_entry": {
+      "message": "Invalid config entry provided. Got {config_entry}"
+    }
+  }
+}
