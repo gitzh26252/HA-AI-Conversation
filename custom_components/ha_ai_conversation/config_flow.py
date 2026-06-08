@@ -9,12 +9,13 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.const import CONF_API_KEY, CONF_LLM_HASS_API
+from homeassistant.core import callback
 from homeassistant.helpers import llm
 from homeassistant.helpers.selector import NumberSelector, NumberSelectorConfig, SelectOptionDict, SelectSelector, SelectSelectorConfig, SelectSelectorMode, TemplateSelector
 from homeassistant.helpers.typing import VolDictType
 
 from .api import ValidationError, detect_and_validate_client
-from .const import API_MODE_ANTHROPIC, API_MODE_AUTO, API_MODE_GEMINI, API_MODE_OPENAI_CHAT, API_MODE_OPENAI_RESPONSES, CONF_API_BASE, CONF_API_MODE, CONF_CHAT_MODEL, CONF_MAX_TOKENS, CONF_PROMPT, CONF_RECOMMENDED, CONF_TEMPERATURE, CONF_TOP_P, DOMAIN, RECOMMENDED_CHAT_MODEL, RECOMMENDED_MAX_TOKENS, RECOMMENDED_OPTIONS, RECOMMENDED_TEMPERATURE, RECOMMENDED_TOP_P
+from .const import API_MODE_ANTHROPIC, API_MODE_AUTO, API_MODE_GEMINI, API_MODE_OPENAI_CHAT, API_MODE_OPENAI_RESPONSES, CONF_API_BASE, CONF_API_MODE, CONF_CHAT_MODEL, CONF_MAX_TOKENS, CONF_PROMPT, CONF_RECOMMENDED, CONF_TEMPERATURE, CONF_TOP_P, DOMAIN, LOGGER, RECOMMENDED_CHAT_MODEL, RECOMMENDED_MAX_TOKENS, RECOMMENDED_OPTIONS, RECOMMENDED_TEMPERATURE, RECOMMENDED_TOP_P
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
@@ -54,7 +55,6 @@ class HAAIConversationConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
-        error_placeholders: dict[str, str] = {}
 
         if user_input is not None:
             try:
@@ -62,7 +62,7 @@ class HAAIConversationConfigFlow(ConfigFlow, domain=DOMAIN):
             except ValidationError as err:
                 errors["base"] = err.error_key
                 if err.detail:
-                    error_placeholders["message"] = err.detail
+                    LOGGER.error("Validation failed for %s: %s", user_input.get(CONF_API_BASE), err.detail)
             except ValueError as err:
                 errors["base"] = str(err)
             except Exception:
@@ -82,7 +82,6 @@ class HAAIConversationConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
             description_placeholders={"example_url": "https://api.openai.com/v1 or https://your-endpoint/openai/v1"},
-            error_placeholders=error_placeholders,
         )
 
     @staticmethod

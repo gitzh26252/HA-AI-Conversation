@@ -1,8 +1,5 @@
 {
   "name": "HA AI Conversation",
   "content_in_root": false,
-  "filename": "ha_ai_conversation.zip",
-  "homeassistant": "2026.2.0",
-  "render_readme": true,
-  "zip_release": false
+  "homeassistant": "2026.2.0"
 }
