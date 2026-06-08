@@ -4,7 +4,7 @@
       "single_instance_allowed": "Já se encontra configurada. Só é permitida uma instância."
     },
     "error": {
-      "cannot_connect": "Falha na ligação: {message}",
+      "cannot_connect": "Falha na ligação",
       "invalid_auth": "Autenticação invalida",
       "unknown": "Erro desconhecido"
     },

@@ -4,7 +4,7 @@
       "single_instance_allowed": "已配置过设置，仅能配置一次"
     },
     "error": {
-      "cannot_connect": "连接失败：{message}",
+      "cannot_connect": "连接失败",
       "invalid_auth": "無效的驗證",
       "unknown": "非預期的錯誤",
       "unsupported_api_mode": "不支援的 API 模式"
