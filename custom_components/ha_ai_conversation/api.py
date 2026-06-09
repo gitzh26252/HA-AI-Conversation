@@ -89,6 +89,7 @@ class UnifiedClient:
         tools: list[dict[str, Any]] | None,
     ) -> tuple[str, list[dict[str, Any]]]:
         """Send a completion request and return text plus tool calls."""
+        max_tokens = int(max_tokens)  # NumberSelector yields a float; most APIs require an int
         if self.mode == API_MODE_OPENAI_RESPONSES:
             return await self._complete_openai_responses(messages, max_tokens, temperature, top_p, tools)
         if self.mode == API_MODE_OPENAI_CHAT:
@@ -100,17 +101,36 @@ class UnifiedClient:
         raise ValueError("unsupported_api_mode")
 
     async def _request(self, method: str, url: str, *, headers: dict[str, str], json_body: dict[str, Any]) -> dict[str, Any]:
-        response = await self.http_client.request(method, url, headers=headers, json=json_body, timeout=20.0)
+        try:
+            response = await self.http_client.request(method, url, headers=headers, json=json_body, timeout=20.0)
+        except httpx.HTTPError as err:
+            raise APIError(str(err)) from err
         if response.status_code in (401, 403):
             raise ValueError("invalid_auth")
         if response.status_code >= 400:
-            try:
-                payload = response.json()
-            except Exception:
-                payload = {"error": {"message": response.text}}
-            message = payload.get("error", {}).get("message") or response.text
-            raise APIError(message)
+            raise APIError(_response_error_message(response))
         return response.json()
+
+    async def _request_openai_chat(self, messages: list[dict[str, Any]], *, max_tokens: int) -> dict[str, Any]:
+        body = {"model": self.model, "messages": messages, "max_tokens": max_tokens}
+        try:
+            return await self._request(
+                "POST",
+                self.base_url.rstrip("/") + "/chat/completions",
+                headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+                json_body=body,
+            )
+        except APIError as err:
+            if "max_completion_tokens" not in str(err):
+                raise
+            body.pop("max_tokens", None)
+            body["max_completion_tokens"] = max_tokens
+            return await self._request(
+                "POST",
+                self.base_url.rstrip("/") + "/chat/completions",
+                headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
+                json_body=body,
+            )
 
     async def _post_openai_responses(self, prompt: str, *, max_tokens: int) -> dict[str, Any]:
         return await self._request(
@@ -121,12 +141,7 @@ class UnifiedClient:
         )
 
     async def _post_openai_chat(self, messages: list[dict[str, Any]], *, max_tokens: int) -> dict[str, Any]:
-        return await self._request(
-            "POST",
-            self.base_url.rstrip("/") + "/chat/completions",
-            headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
-            json_body={"model": self.model, "messages": messages, "max_tokens": max_tokens},
-        )
+        return await self._request_openai_chat(messages, max_tokens=max_tokens)
 
     async def _post_anthropic(self, messages: list[dict[str, Any]], *, max_tokens: int) -> dict[str, Any]:
         return await self._request(
@@ -225,12 +240,18 @@ class UnifiedClient:
             body["tools"] = tools
             body["tool_choice"] = "auto"
 
-        data = await self._request(
-            "POST",
-            self.base_url.rstrip("/") + "/chat/completions",
-            headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
-            json_body=body,
-        )
+        url = self.base_url.rstrip("/") + "/chat/completions"
+        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        try:
+            data = await self._request("POST", url, headers=headers, json_body=body)
+        except APIError as err:
+            if "max_completion_tokens" not in str(err):
+                raise
+            body.pop("max_tokens", None)
+            body["max_completion_tokens"] = max_tokens
+            data = await self._request("POST", url, headers=headers, json_body=body)
+        if not data.get("choices"):
+            return "", []
         message = data["choices"][0]["message"]
         return message.get("content", "") or "", message.get("tool_calls", []) or []
 
@@ -382,7 +403,8 @@ class UnifiedClient:
             headers={"Content-Type": "application/json"},
             json_body=body,
         )
-        parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+        candidates = data.get("candidates") or [{}]
+        parts = candidates[0].get("content", {}).get("parts", [])
         text_parts: list[str] = []
         tool_calls: list[dict[str, Any]] = []
         for part in parts:
@@ -401,6 +423,23 @@ class UnifiedClient:
                     }
                 )
         return "".join(text_parts), tool_calls
+
+
+def _response_error_message(response: httpx.Response) -> str:
+    """Extract a human-readable error message from an error response."""
+    try:
+        payload = response.json()
+    except Exception:  # noqa: BLE001 - error body may be empty or non-JSON
+        payload = None
+    if isinstance(payload, dict):
+        error = payload.get("error")
+        if isinstance(error, dict) and error.get("message"):
+            return str(error["message"])
+        if isinstance(error, str) and error:
+            return error
+        if payload.get("message"):
+            return str(payload["message"])
+    return response.text or f"HTTP {response.status_code}"
 
 
 def _guess_modes(base_url: str) -> list[str]:

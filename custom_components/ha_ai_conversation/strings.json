@@ -1,5 +1,8 @@
 {
   "config": {
+    "abort": {
+      "already_configured": "This API endpoint and model combination is already configured."
+    },
     "step": {
       "user": {
         "description": "Enter the endpoint, API key and model ID. The integration will try to detect the API protocol automatically.\n\n{error_detail}",
@@ -41,10 +44,11 @@
           "prompt": "Instruct how the LLM should respond. This can be a template."
         }
       }
-    },
-    "exceptions": {
-      "invalid_config_entry": {
-        "message": "Invalid config entry provided. Got {config_entry}"
-      }
+    }
+  },
+  "exceptions": {
+    "invalid_config_entry": {
+      "message": "Invalid config entry provided. Got {config_entry}"
     }
   }
+}
