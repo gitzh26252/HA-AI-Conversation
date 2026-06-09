@@ -9,7 +9,6 @@ import voluptuous as vol
 
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, ConfigFlowResult, OptionsFlow
 from homeassistant.const import CONF_API_KEY, CONF_LLM_HASS_API
-from homeassistant.core import callback
 from homeassistant.helpers import llm
 from homeassistant.helpers.selector import NumberSelector, NumberSelectorConfig, SelectOptionDict, SelectSelector, SelectSelectorConfig, SelectSelectorMode, TemplateSelector
 from homeassistant.helpers.typing import VolDictType
@@ -55,6 +54,10 @@ class HAAIConversationConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input: dict[str, Any] | None = None) -> ConfigFlowResult:
         """Handle the initial step."""
         errors: dict[str, str] = {}
+        description_placeholders = {
+            "example_url": "https://api.openai.com/v1 or https://your-endpoint/openai/v1",
+            "error_detail": "",
+        }
 
         if user_input is not None:
             try:
@@ -63,6 +66,7 @@ class HAAIConversationConfigFlow(ConfigFlow, domain=DOMAIN):
                 errors["base"] = err.error_key
                 if err.detail:
                     LOGGER.error("Validation failed for %s: %s", user_input.get(CONF_API_BASE), err.detail)
+                    description_placeholders["error_detail"] = err.detail
             except ValueError as err:
                 errors["base"] = str(err)
             except Exception:
@@ -81,7 +85,7 @@ class HAAIConversationConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=errors,
-            description_placeholders={"example_url": "https://api.openai.com/v1 or https://your-endpoint/openai/v1"},
+            description_placeholders=description_placeholders,
         )
 
     @staticmethod

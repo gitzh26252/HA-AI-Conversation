@@ -11,7 +11,7 @@
     },
     "step": {
       "user": {
-        "description": "Enter the endpoint, API key and model ID. The integration will try to detect the API protocol automatically.",
+        "description": "Enter the endpoint, API key and model ID. The integration will try to detect the API protocol automatically.\n\n{error_detail}",
         "data": {
           "api_key": "API Key",
           "api_base": "API Base URL",

@@ -11,7 +11,7 @@
     },
     "step": {
       "user": {
-        "description": "输入端点、API Key 和模型 ID。集成会自动尝试识别 API 协议。",
+        "description": "输入端点、API Key 和模型 ID。集成会自动尝试识别 API 协议。\n\n{error_detail}",
         "data": {
           "api_key": "API 金鑰",
           "api_base": "API 端點",
