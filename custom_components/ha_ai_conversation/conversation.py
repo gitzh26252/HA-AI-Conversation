@@ -123,9 +123,8 @@ class UniversalConversationEntity(conversation.ConversationEntity, conversation.
         if chat_log.llm_api:
             tools = [_format_tool(tool, chat_log.llm_api.custom_serializer) for tool in chat_log.llm_api.tools]
 
-        messages = [message for content in chat_log.content for message in _message_from_content(content)]
-
         for _ in range(MAX_TOOL_ITERATIONS):
+            messages = [message for content in chat_log.content for message in _message_from_content(content)]
             try:
                 text, tool_calls = await client.complete(
                     messages,
@@ -136,27 +135,30 @@ class UniversalConversationEntity(conversation.ConversationEntity, conversation.
                 )
             except Exception as err:
                 LOGGER.error("Error talking to AI provider: %s", err)
-                raise HomeAssistantError("Error talking to AI provider") from err
+                raise HomeAssistantError(f"Error talking to AI provider: {err}") from err
 
-            assistant = conversation.AssistantContent(agent_id=self.entity_id, content=text or None)
-            if tool_calls:
-                assistant.tool_calls = [
-                    llm.ToolInput(
-                        id=tool_call["id"],
-                        tool_name=tool_call["function"]["name"],
-                        tool_args=json.loads(tool_call["function"]["arguments"]),
-                    )
-                    for tool_call in tool_calls
-                ]
-            chat_log.async_add_content(assistant)
+            tool_inputs = [
+                llm.ToolInput(
+                    id=tool_call["id"],
+                    tool_name=tool_call["function"]["name"],
+                    tool_args=json.loads(tool_call["function"]["arguments"]),
+                )
+                for tool_call in tool_calls
+            ] or None
 
-            if not tool_calls:
-                break
+            # async_add_assistant_content appends the assistant turn and, when tool calls
+            # are present, executes them and appends their results back to the chat log.
+            async for _tool_result in chat_log.async_add_assistant_content(
+                conversation.AssistantContent(
+                    agent_id=self.entity_id,
+                    content=text or None,
+                    tool_calls=tool_inputs,
+                )
+            ):
+                pass
 
-            await chat_log.async_provide_llm_data(assistant, self.entity_id)
             if not chat_log.unresponded_tool_results:
                 break
-            messages = [message for content in chat_log.content for message in _message_from_content(content)]
 
     async def _async_entry_update_listener(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         await hass.config_entries.async_reload(entry.entry_id)
