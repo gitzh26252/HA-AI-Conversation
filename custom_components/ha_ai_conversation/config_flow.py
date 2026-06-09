@@ -21,6 +21,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_API_KEY): str,
         vol.Required(CONF_API_BASE): str,
         vol.Required(CONF_CHAT_MODEL, default=""): str,
+        vol.Required(CONF_MAX_TOKENS, default=RECOMMENDED_MAX_TOKENS): NumberSelector(NumberSelectorConfig(min=1, max=65536, mode="box")),
         vol.Required(CONF_API_MODE, default=API_MODE_AUTO): SelectSelector(
             SelectSelectorConfig(
                 options=[
@@ -78,7 +79,7 @@ class HAAIConversationConfigFlow(ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=info["title"],
                     data=user_input,
-                    options={**RECOMMENDED_OPTIONS, CONF_LLM_HASS_API: llm.LLM_API_ASSIST},
+                    options={**RECOMMENDED_OPTIONS, CONF_LLM_HASS_API: llm.LLM_API_ASSIST, CONF_MAX_TOKENS: user_input[CONF_MAX_TOKENS]},
                 )
 
         return self.async_show_form(

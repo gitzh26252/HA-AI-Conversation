@@ -16,12 +16,14 @@
           "api_key": "API Key",
           "api_base": "API Base URL",
           "chat_model": "Model ID",
+          "max_tokens": "Max output tokens",
           "api_mode": "API mode"
         },
         "data_description": {
           "api_key": "",
           "api_base": "Example: {example_url}",
           "chat_model": "Examples: gpt-4o-mini, claude-sonnet-4-6, gemini-2.5-flash",
+          "max_tokens": "Maximum output token budget for validation and conversation responses.",
           "api_mode": "Auto detect is recommended. Select manually only for non-standard endpoints."
         }
       }

@@ -16,11 +16,13 @@
           "api_key": "API 金鑰",
           "api_base": "API 端點",
           "chat_model": "模型 ID",
+          "max_tokens": "最大输出 tokens",
           "api_mode": "API 模式"
         },
         "data_description": {
           "api_base": "示例: {example_url}",
           "chat_model": "例如: gpt-4o-mini、claude-sonnet-4-6、gemini-2.5-flash",
+          "max_tokens": "用于验证请求和正式对话回复的最大输出 token 上限。",
           "api_mode": "建议使用自动检测。仅在非标准端点时手动选择。"
         }
       }

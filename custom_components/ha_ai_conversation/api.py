@@ -38,6 +38,9 @@ class ValidationError(ValueError):
         self.detail = detail
 
 
+    VALIDATION_MAX_TOKENS = 16
+
+
 @dataclass(slots=True)
 class ChatMessage:
     """Internal normalized chat message."""
@@ -63,16 +66,16 @@ class UnifiedClient:
     async def validate(self) -> None:
         """Validate credentials and endpoint with a cheap provider-specific call."""
         if self.mode == API_MODE_OPENAI_RESPONSES:
-            await self._post_openai_responses("ping", max_tokens=1)
+            await self._post_openai_responses("ping", max_tokens=VALIDATION_MAX_TOKENS)
             return
         if self.mode == API_MODE_OPENAI_CHAT:
-            await self._post_openai_chat([{"role": "user", "content": "ping"}], max_tokens=1)
+            await self._post_openai_chat([{"role": "user", "content": "ping"}], max_tokens=VALIDATION_MAX_TOKENS)
             return
         if self.mode == API_MODE_ANTHROPIC:
-            await self._post_anthropic([{"role": "user", "content": "ping"}], max_tokens=1)
+            await self._post_anthropic([{"role": "user", "content": "ping"}], max_tokens=VALIDATION_MAX_TOKENS)
             return
         if self.mode == API_MODE_GEMINI:
-            await self._post_gemini([{"role": "user", "parts": [{"text": "ping"}]}], max_tokens=1)
+            await self._post_gemini([{"role": "user", "parts": [{"text": "ping"}]}], max_tokens=VALIDATION_MAX_TOKENS)
             return
         raise ValueError("unsupported_api_mode")
 
