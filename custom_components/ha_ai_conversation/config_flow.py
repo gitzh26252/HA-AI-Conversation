@@ -21,7 +21,7 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_API_KEY): str,
         vol.Required(CONF_API_BASE): str,
         vol.Required(CONF_CHAT_MODEL, default=""): str,
-        vol.Required(CONF_MAX_TOKENS, default=RECOMMENDED_MAX_TOKENS): NumberSelector(NumberSelectorConfig(min=1, max=65536, mode="box")),
+        vol.Required(CONF_MAX_TOKENS, default=RECOMMENDED_MAX_TOKENS): NumberSelector(NumberSelectorConfig(min=1, mode="box")),
         vol.Required(CONF_API_MODE, default=API_MODE_AUTO): SelectSelector(
             SelectSelectorConfig(
                 options=[
@@ -136,7 +136,7 @@ def ai_config_option_schema(options: dict[str, Any] | MappingProxyType[str, Any]
         schema.update(
             {
                 vol.Required(CONF_CHAT_MODEL, default=options.get(CONF_CHAT_MODEL, RECOMMENDED_CHAT_MODEL)): str,
-                vol.Required(CONF_MAX_TOKENS, default=options.get(CONF_MAX_TOKENS, RECOMMENDED_MAX_TOKENS)): NumberSelector(NumberSelectorConfig(min=1, max=65536, mode="box")),
+                vol.Required(CONF_MAX_TOKENS, default=options.get(CONF_MAX_TOKENS, RECOMMENDED_MAX_TOKENS)): NumberSelector(NumberSelectorConfig(min=1, mode="box")),
                 vol.Required(CONF_TEMPERATURE, default=options.get(CONF_TEMPERATURE, RECOMMENDED_TEMPERATURE)): NumberSelector(NumberSelectorConfig(min=0, max=2, step=0.1, mode="slider")),
                 vol.Required(CONF_TOP_P, default=options.get(CONF_TOP_P, RECOMMENDED_TOP_P)): NumberSelector(NumberSelectorConfig(min=0, max=1, step=0.05, mode="slider")),
             }

@@ -38,7 +38,7 @@ class ValidationError(ValueError):
         self.detail = detail
 
 
-    VALIDATION_MAX_TOKENS = 16
+VALIDATION_MAX_TOKENS = 16
 
 
 @dataclass(slots=True)
