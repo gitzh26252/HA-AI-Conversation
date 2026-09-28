@@ -9,6 +9,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.typing import ConfigType
 
 from .api import detect_and_validate_client
+from .const import CONF_CHAT_MODEL
 
 PLATFORMS = (Platform.CONVERSATION,)
 
@@ -22,8 +23,12 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 async def async_setup_entry(hass: HomeAssistant, entry: HAAIConversationConfigEntry) -> bool:
     """Set up integration from config entry."""
+    data = {
+        **entry.data,
+        CONF_CHAT_MODEL: entry.options.get(CONF_CHAT_MODEL, entry.data[CONF_CHAT_MODEL]),
+    }
     try:
-        client = await detect_and_validate_client(hass, entry.data)
+        client = await detect_and_validate_client(hass, data)
     except ValueError as err:
         raise ConfigEntryNotReady(str(err)) from err
 

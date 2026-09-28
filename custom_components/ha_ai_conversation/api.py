@@ -177,7 +177,15 @@ class UnifiedClient:
                 continue
             input_items.append({"role": message.role, "content": message.content})
             if message.tool_calls:
-                input_items.extend(message.tool_calls)
+                input_items.extend(
+                    {
+                        "type": "function_call",
+                        "call_id": tool_call["id"],
+                        "name": tool_call["function"]["name"],
+                        "arguments": tool_call["function"].get("arguments", "{}"),
+                    }
+                    for tool_call in message.tool_calls
+                )
 
         payload: dict[str, Any] = {
             "model": self.model,
@@ -188,7 +196,15 @@ class UnifiedClient:
             "store": False,
         }
         if tools:
-            payload["tools"] = tools
+            payload["tools"] = [
+                {
+                    "type": "function",
+                    "name": tool["function"]["name"],
+                    "description": tool["function"].get("description", ""),
+                    "parameters": tool["function"]["parameters"],
+                }
+                for tool in tools
+            ]
 
         data = await self._request(
             "POST",
@@ -276,7 +292,7 @@ class UnifiedClient:
                     }
                 )
                 continue
-            content: list[dict[str, Any] | str] = [message.content]
+            content: str | list[dict[str, Any]] = message.content
             if message.tool_calls:
                 content = []
                 if message.content:
@@ -465,6 +481,8 @@ def _normalize_base_url(base_url: str, mode: str) -> str:
         return normalized[: -len("/chat/completions")]
     if mode == API_MODE_ANTHROPIC and normalized.endswith("/messages"):
         return normalized[: -len("/messages")]
+    if mode == API_MODE_GEMINI and "/models/" in normalized and normalized.endswith(":generateContent"):
+        return normalized.rsplit("/models/", 1)[0]
     return normalized
 
 
